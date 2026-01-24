@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "process.h"
 
 /* ============================================================
@@ -8,36 +7,45 @@ void sjf_schedule(Process p[], int n)
 {
     int time = 0;
     int completed = 0;
+    int done[n];
+    Process result[n];
 
-    while (completed < n) {
+    for (int i = 0; i < n; i++)
+        done[i] = 0;
+
+    while (completed < n)
+    {
         int idx = -1;
         int min_bt = 1000000;
 
-        for (int i = 0; i < n; i++) {
-            if (!p[i].completed &&
-                p[i].arrival_time <= time &&
-                p[i].burst_time < min_bt) {
-
-                min_bt = p[i].burst_time;
-                idx = i;
+        for (int i = 0; i < n; i++)
+        {
+            if (!done[i] && p[i].arrival_time <= time)
+            {
+                if (p[i].burst_time < min_bt)
+                {
+                    min_bt = p[i].burst_time;
+                    idx = i;
+                }
             }
         }
 
-        /* Si no hay procesos disponibles, avanza el tiempo */
-        if (idx == -1) {
+        if (idx == -1)
+        {
             time++;
             continue;
         }
 
-        /* Ejecutar proceso seleccionado */
+        done[idx] = 1;
         p[idx].waiting_time = time - p[idx].arrival_time;
         time += p[idx].burst_time;
-        p[idx].turnaround_time =
-            p[idx].waiting_time + p[idx].burst_time;
-        p[idx].completed = 1;
+        p[idx].turnaround_time = time - p[idx].arrival_time;
 
-        completed++;
+        result[completed++] = p[idx];
     }
+
+    for (int i = 0; i < n; i++)
+        p[i] = result[i];
 }
 
 /* ============================================================

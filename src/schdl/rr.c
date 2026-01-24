@@ -4,57 +4,40 @@
 /* ============================================================
  * Student implementation area
  * ============================================================ */
-
 void rr_schedule(Process p[], int n, int quantum)
 {
     int time = 0;
     int completed = 0;
 
-    int remaining[n];
+    while (completed < n) {
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_time <= time &&
+                p[i].remaining_time > 0) {
 
-    for (int i = 0; i < n; i++)
-    {
-        remaining[i] = p[i].burst_time;
-        p[i].waiting_time = 0;
-        p[i].turnaround_time = 0;
-        p[i].completed = 0;
-    }
+                int exec_time =
+                    (p[i].remaining_time > quantum)
+                    ? quantum
+                    : p[i].remaining_time;
 
-    while (completed < n)
-    {
-        int executed = 0;
+                p[i].remaining_time -= exec_time;
+                time += exec_time;
 
-        for (int i = 0; i < n; i++)
-        {
-            if (remaining[i] > 0 && p[i].arrival_time <= time)
-            {
-                executed = 1;
-
-                if (remaining[i] > quantum)
-                {
-                    time += quantum;
-                    remaining[i] -= quantum;
+                for (int j = 0; j < n; j++) {
+                    if (j != i &&
+                        p[j].arrival_time <= time &&
+                        p[j].remaining_time > 0) {
+                        p[j].waiting_time += exec_time;
+                    }
                 }
-                else
-                {
-                    time += remaining[i];
-                    remaining[i] = 0;
 
+                if (p[i].remaining_time == 0) {
+                    p[i].completed = 1;
                     p[i].turnaround_time =
                         time - p[i].arrival_time;
-
-                    p[i].waiting_time =
-                        p[i].turnaround_time - p[i].burst_time;
-
-                    p[i].completed = 1;
                     completed++;
                 }
             }
         }
-
-        /* Si nadie pudo ejecutarse, avanzar tiempo */
-        if (!executed)
-            time++;
     }
 }
 
@@ -64,8 +47,7 @@ void rr_schedule(Process p[], int n, int quantum)
 #ifndef UNIT_TEST
 int main(void)
 {
-    int n;
-    int quantum;
+    int n, quantum;
 
     printf("Número de procesos: ");
     scanf("%d", &n);
@@ -79,7 +61,7 @@ int main(void)
 
     rr_schedule(p, n, quantum);
 
-    print_results(p, n, "RR Scheduling");
+    print_results(p, n, "Round Robin Scheduling");
     return 0;
 }
 #endif

@@ -11,9 +11,8 @@ void sjf_schedule(Process p[], int n)
 
     while (completed < n) {
         int idx = -1;
-        int min_bt = 1000000000;
+        int min_bt = 1000000;
 
-        // Buscar el proceso disponible con menor burst_time
         for (int i = 0; i < n; i++) {
             if (!p[i].completed &&
                 p[i].arrival_time <= time &&
@@ -24,19 +23,19 @@ void sjf_schedule(Process p[], int n)
             }
         }
 
-        // Si no hay procesos listos, avanzar el tiempo
+        /* Si no hay procesos disponibles, avanza el tiempo */
         if (idx == -1) {
             time++;
             continue;
         }
 
-        // Calcular tiempos
+        /* Ejecutar proceso seleccionado */
         p[idx].waiting_time = time - p[idx].arrival_time;
         time += p[idx].burst_time;
         p[idx].turnaround_time =
             p[idx].waiting_time + p[idx].burst_time;
-
         p[idx].completed = 1;
+
         completed++;
     }
 }

@@ -33,7 +33,7 @@ void rr_schedule(Process p[], int n, int quantum)
                 if (p[i].remaining_time == 0) {
                     p[i].completed = 1;
                     p[i].turnaround_time =
-                        time - p[i].arrival_time;
+                        p[i].waiting_time + p[i].burst_time;
                     completed++;
                 }
             }
